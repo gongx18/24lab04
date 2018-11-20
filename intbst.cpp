@@ -5,6 +5,7 @@
 #include "intbst.h"
 
 #include <iostream>
+#include <stack>
 using std::cout;
 
 // constructor sets up empty tree
@@ -77,7 +78,8 @@ void IntBST::printPreOrder(Node *n) const {
 void IntBST::printInOrder() const {
     printInOrder(root);
 }
-void IntBST::printInOrder(Node *n) const {
+
+ void IntBST::printInOrder(Node *n) const {
     stack <Node *n> s; 
     Node *cur = root; 
 
@@ -90,7 +92,7 @@ void IntBST::printInOrder(Node *n) const {
         cout << cur->info; 
         cur = cur->right; 
     }
-}
+ }
 
 // prints tree data post-order, with helper
 void IntBST::printPostOrder() const {
@@ -98,7 +100,10 @@ void IntBST::printPostOrder() const {
 }
 
 void IntBST::printPostOrder(Node *n) const {
-    // IMPLEMENT HERE
+    if(n == NULL) return;
+    printPostOrder(n->left);
+    printPostOrder(n->right);
+    cout << n->info << " ";
 }
 
 // return sum of values in tree
@@ -131,19 +136,36 @@ int IntBST::count(Node *n) const {
 // Whenever you call this method from somewhere else, pass it
 // the root node as "n"
 IntBST::Node* IntBST::getNodeFor(int value, Node* n) const{
-    return NULL; // REPLACE THIS NON-SOLUTION
+    if(n == NULL) return NULL; 
+    if(n->info == value || n == NULL)
+        return n; 
+    if(n->info > value) return getNodeFor(value, n->left); 
+    return getNodeFor(value, n->right); 
 }
+
 
 // returns true if value is in the tree; false if not
 bool IntBST::contains(int value) const {
-    return true; // REPLACE THIS NON-SOLUTION
+    Node *cur = root; 
+    while(cur != NULL){
+        if(cur->info == value){
+            return true;
+        }
+        else{
+            if(value > cur->info) 
+                cur = cur->right; 
+            else 
+                cur = cur->left; 
+        }
+    }
+    return false; 
 }
 
 // returns the Node containing the predecessor of the given value
 IntBST::Node* IntBST::getPredecessorNode(int value) const{
     if(root == NULL) return NULL; 
-    TreeNode *temp = root; 
-    TreeNode *pre = NULL;
+    Node *temp = root; 
+    Node *pre = NULL;
     while(temp != NULL){
         if(temp->info >= value){
             temp = temp->left; 
@@ -159,9 +181,9 @@ IntBST::Node* IntBST::getPredecessorNode(int value) const{
 // returns the predecessor value of the given value or 0 if there is none
 int IntBST::getPredecessor(int value) const{
     bool b = false; //boolean b denotes whether "value" is the smallest value in tree, i.e, no Predecessor;  
-    if(root == NULL) return NULL; 
-    TreeNode *temp = root; 
-    TreeNode *pre = NULL;
+    if(root == NULL) return 0; 
+    Node *temp = root; 
+    Node *pre = NULL;
     while(temp != NULL){
         if(temp->info >= value){
             temp = temp->left; 
@@ -179,8 +201,8 @@ int IntBST::getPredecessor(int value) const{
 // returns the Node containing the successor of the given value
 IntBST::Node* IntBST::getSuccessorNode(int value) const{
     if(root == NULL) return NULL; 
-    TreeNode *temp = root; 
-    TreeNode *pre = NULL;
+    Node *temp = root; 
+    Node *pre = NULL;
     while(temp != NULL){
         if(temp->info <= value){
             temp = temp->right; 
@@ -195,9 +217,9 @@ IntBST::Node* IntBST::getSuccessorNode(int value) const{
 // returns the successor value of the given value or 0 if there is none
 int IntBST::getSuccessor(int value) const{
     bool b = false; //boolean b denotes whether "value" is the smallest value in tree, i.e, no Predecessor;  
-    if(root == NULL) return NULL; 
-    TreeNode *temp = root; 
-    TreeNode *pre = NULL;
+    if(root == NULL) return 0; 
+    Node *temp = root; 
+    Node *pre = NULL;
     while(temp != NULL){
         if(temp->info >= value){
             temp = temp->left; 
@@ -212,8 +234,38 @@ int IntBST::getSuccessor(int value) const{
     else return 0; 
 }
 
+//helper function for remove; 
+void deleteNode(Node *root, int value){
+        if(root == NULL){
+            return NULL; 
+        }
+        if(root->val == key){
+            if(! root->left ){
+                return root -> right; 
+            }
+            if(! root->right){
+                return root -> left; 
+            }
+            
+            int c = getSuccessorNode(root) -> val; 
+            root->val = c; 
+            root->right = deleteNode(root -> right, c); 
+            return root; 
+        }
+        
+        if(root->val < key){
+            root->right = deleteNode(root -> right, key);  //note: deteleNode would return itself if root.right isn't key
+        }else{
+            root->left = deleteNode(root -> left, key);
+        }
+}   
+
 // deletes the Node containing the given value from the tree
 // returns true if the node exist and was deleted or false if the node does not exist
 bool IntBST::remove(int value){
-    return false; // REPLACE THIS NON-SOLUTION
+    if(contains(value) == false) return false;
+    
+    deleteNode(root, value);
+    if(contains(value) == false) return true;
+    else return false; 
 }
